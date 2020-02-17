@@ -1,20 +1,29 @@
-import { Component, ViewChild, OnInit, OnDestroy } from "@angular/core";
-import { Subscription } from "rxjs";
-import { NgForm } from "@angular/forms";
+import { Component, ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { NgForm } from '@angular/forms';
+import { Store } from '@ngrx/store';
 
-import { Ingredient } from "src/app/shared/Ingredient";
-import { ShoppingListService } from "../shopping-list.service";
+import { Ingredient } from 'src/app/shared/Ingredient';
+import { ShoppingListService } from '../shopping-list.service';
+import * as ShoppingListActions from '../store/shopping-list.actions';
 
 @Component({
-  selector: "app-shopping-edit",
-  templateUrl: "./shopping-edit.component.html",
-  styleUrls: ["./shopping-edit.component.css"]
+  selector: 'app-shopping-edit',
+  templateUrl: './shopping-edit.component.html',
+  styleUrls: ['./shopping-edit.component.css']
 })
 export class ShoppingEditComponent implements OnInit, OnDestroy {
-  @ViewChild("shopForm", { static: false }) shoppingForm: NgForm;
+  @ViewChild('shopForm', { static: false }) shoppingForm: NgForm;
   ingredientEditSubscription: Subscription;
 
-  constructor(private shpSvc: ShoppingListService) {}
+  constructor(
+    private shpSvc: ShoppingListService,
+    private store: Store<{
+      shoppingList: {
+        ingredients: Ingredient[];
+      };
+    }>
+  ) {}
 
   ngOnInit(): void {
     this.ingredientEditSubscription = this.shpSvc.editingIngredient.subscribe(
@@ -33,8 +42,8 @@ export class ShoppingEditComponent implements OnInit, OnDestroy {
 
   onAddItem(): void {
     const newIngredient = this.getFormIngredient();
-    this.shpSvc.add(newIngredient);
     this.onClearItem();
+    this.store.dispatch(new ShoppingListActions.AddIngredient(newIngredient));
   }
 
   onDeleteItem(): void {

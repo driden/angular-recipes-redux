@@ -13,12 +13,17 @@ import { CoreModule } from './core.module';
 
 // Components
 import { HeaderComponent } from './header/header.component';
+import { StoreModule } from '@ngrx/store';
+
+// Store
+import { shoppingListReducer } from './shopping-list/store/shopping-list.reducer';
 
 @NgModule({
   imports: [
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
+    StoreModule.forRoot({ shoppingList: shoppingListReducer }),
     // RecipesModule, ShoppingListModule y AuthModule no los importo eagerly porque ya los importo de manera lazy
     SharedModule,
     CoreModule
