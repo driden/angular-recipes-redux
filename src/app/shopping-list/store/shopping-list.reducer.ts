@@ -1,8 +1,14 @@
 import { Ingredient } from '../../shared/Ingredient';
 import * as ShoppingListActions from './shopping-list.actions';
 
-const initialState = {
-  ingredients: [new Ingredient('Apples', 5), new Ingredient('Tomatoes', 10)]
+export interface State {
+  ingredients: Ingredient[];
+  editedIngredient: Ingredient;
+}
+
+const initialState: State = {
+  ingredients: [new Ingredient('Apples', 5), new Ingredient('Tomatoes', 10)],
+  editedIngredient: null
 };
 
 export function shoppingListReducer(
