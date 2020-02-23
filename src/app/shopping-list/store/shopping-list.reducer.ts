@@ -7,12 +7,42 @@ const initialState = {
 
 export function shoppingListReducer(
   state = initialState,
-  action: ShoppingListActions.AddIngredient
+  action: ShoppingListActions.ShoppingListActions
 ) {
   switch (action.type) {
     case ShoppingListActions.ADD_INGREDIENT:
-      return { ...state, ingredients: [...state.ingredients, action] };
+      return { ...state, ingredients: [...state.ingredients, action.payload] };
+    case ShoppingListActions.ADD_INGREDIENTS:
+      return {
+        ...state,
+        ingredients: [...state.ingredients, ...(action.payload as Ingredient[])]
+      };
+    case ShoppingListActions.DELETE_INGREDIENT:
+      const newState = { ...state };
+      newState.ingredients = deleteIngredient(
+        action.payload as Ingredient,
+        newState.ingredients
+      );
+      return newState;
     default:
       return state;
   }
+}
+
+function deleteIngredient(
+  ingredient: Ingredient,
+  ingredients: Ingredient[]
+): Ingredient[] {
+  const inArray: Ingredient = findIngredient(ingredient.name, ingredients);
+
+  if (inArray && inArray.amount > ingredient.amount) {
+    inArray.amount -= +ingredient.amount;
+  } else if (inArray) {
+    ingredients.splice(ingredients.indexOf(inArray), 1);
+  }
+  return ingredients;
+}
+
+function findIngredient(name: string, ingredients: Ingredient[]): Ingredient {
+  return ingredients.find(ing => name.toLowerCase() === ing.name.toLowerCase());
 }
