@@ -21,7 +21,7 @@ export function shoppingListReducer(
 ) {
   switch (action.type) {
     case ShoppingListActions.ADD_INGREDIENT:
-      return { ...state, ingredients: [...state.ingredients, action.payload] };
+      return addIngredientToShoppingList(action.payload as Ingredient, state);
     case ShoppingListActions.ADD_INGREDIENTS:
       return {
         ...state,
@@ -39,6 +39,24 @@ export function shoppingListReducer(
     default:
       return state;
   }
+}
+
+function addIngredientToShoppingList(
+  ingredient: Ingredient,
+  state: State
+): State {
+  const newState: State = { ...state };
+  let stored = false;
+  newState.ingredients.map(i => {
+    if (i.name.toLocaleLowerCase() === ingredient.name.toLocaleLowerCase()) {
+      i.amount += ingredient.amount;
+      stored = true;
+    }
+  });
+  if (!stored) {
+    newState.ingredients.push(ingredient);
+  }
+  return newState;
 }
 
 function deleteIngredient(
