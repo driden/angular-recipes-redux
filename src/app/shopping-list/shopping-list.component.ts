@@ -5,6 +5,7 @@ import { Ingredient } from '../shared/Ingredient';
 import { ShoppingListService } from './shopping-list.service';
 import { Observable } from 'rxjs';
 import * as fromShoppingList from './store/shopping-list.reducer';
+import { EditIngredient } from './store/shopping-list.actions';
 
 @Component({
   selector: 'app-shopping-list',
@@ -23,6 +24,6 @@ export class ShoppingListComponent implements OnInit {
   }
 
   onIngredientClicked(clickedIngredient: Ingredient) {
-    this.shopListSvc.editingIngredient.next(clickedIngredient);
+    this.store.dispatch(new EditIngredient(clickedIngredient));
   }
 }

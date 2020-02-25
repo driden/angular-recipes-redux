@@ -4,7 +4,6 @@ import { NgForm } from '@angular/forms';
 import { Store } from '@ngrx/store';
 
 import { Ingredient } from 'src/app/shared/Ingredient';
-import { ShoppingListService } from '../shopping-list.service';
 import * as ShoppingListActions from '../store/shopping-list.actions';
 import * as fromShoppingList from '../store/shopping-list.reducer';
 
@@ -17,23 +16,25 @@ export class ShoppingEditComponent implements OnInit, OnDestroy {
   @ViewChild('shopForm', { static: false }) shoppingForm: NgForm;
   ingredientEditSubscription: Subscription;
 
-  constructor(
-    private shpSvc: ShoppingListService,
-    private store: Store<fromShoppingList.AppState>
-  ) {}
+  constructor(private store: Store<fromShoppingList.AppState>) {}
 
   ngOnInit(): void {
-    this.ingredientEditSubscription = this.shpSvc.editingIngredient.subscribe(
-      ingredient => {
+    this.ingredientEditSubscription = this.store
+      .select('shoppingList')
+      .subscribe(state => {
+        if (!state.editedIngredient) {
+          return;
+        }
+
+        const ingredient = state.editedIngredient;
         this.shoppingForm.setValue({
           name: ingredient.name,
           amount: ingredient.amount
         });
-      }
-    );
+      });
   }
 
-  ngOnDestroy(): void {
+  ngOnDestroy() {
     this.ingredientEditSubscription.unsubscribe();
   }
 

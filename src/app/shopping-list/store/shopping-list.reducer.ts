@@ -34,6 +34,8 @@ export function shoppingListReducer(
         newState.ingredients
       );
       return newState;
+    case ShoppingListActions.EDIT_INGREDIENT:
+      return { ...state, editedIngredient: action.payload };
     default:
       return state;
   }
