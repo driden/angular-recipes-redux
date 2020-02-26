@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 
 import { Ingredient } from '../shared/Ingredient';
 import { EditIngredient } from './store/shopping-list.actions';
-import * as fromShoppingList from './store/shopping-list.reducer';
 import * as fromApp from '../store/app.reducer';
 
 @Component({
