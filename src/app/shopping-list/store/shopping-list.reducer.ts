@@ -1,10 +1,6 @@
 import { Ingredient } from '../../shared/Ingredient';
 import * as ShoppingListActions from './shopping-list.actions';
 
-export interface AppState {
-  shoppingList: State;
-}
-
 export interface State {
   ingredients: Ingredient[];
   editedIngredient: Ingredient;
@@ -21,7 +17,10 @@ export function shoppingListReducer(
 ) {
   switch (action.type) {
     case ShoppingListActions.ADD_INGREDIENT:
-      return addIngredientToShoppingList(action.payload as Ingredient, state);
+      const ingredients = addIngredientToList(action.payload as Ingredient, [
+        ...state.ingredients
+      ]);
+      return { ...state, ingredients, editedIngredient: null };
     case ShoppingListActions.ADD_INGREDIENTS:
       return {
         ...state,
@@ -35,28 +34,27 @@ export function shoppingListReducer(
       );
       return newState;
     case ShoppingListActions.EDIT_INGREDIENT:
-      return { ...state, editedIngredient: action.payload };
+      return { ...state, editedIngredient: action.payload as Ingredient };
     default:
       return state;
   }
 }
 
-function addIngredientToShoppingList(
+function addIngredientToList(
   ingredient: Ingredient,
-  state: State
-): State {
-  const newState: State = { ...state };
+  ingredients: Ingredient[]
+): Ingredient[] {
   let stored = false;
-  newState.ingredients.map(i => {
+  ingredients.map(i => {
     if (i.name.toLocaleLowerCase() === ingredient.name.toLocaleLowerCase()) {
       i.amount += ingredient.amount;
       stored = true;
     }
   });
   if (!stored) {
-    newState.ingredients.push(ingredient);
+    ingredients.push(ingredient);
   }
-  return newState;
+  return ingredients;
 }
 
 function deleteIngredient(
