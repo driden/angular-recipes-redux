@@ -1,11 +1,15 @@
-import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
 
 import { signUpUrl, signInUrl } from './firebaseAuthConfig';
 import { User } from './user.model';
+import * as fromApp from '../store/app.reducer';
+import { Login, Logout } from './store/auth.actions';
+import { UserData } from '../auth/store/auth.actions';
 
 export interface AuthResponse {
   kind: string;
@@ -19,9 +23,13 @@ export interface AuthResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  userSubject = new BehaviorSubject<User>(null);
+  // userSubject = new BehaviorSubject<User>(null);
   private tokenExpirationTimer: any;
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private store: Store<fromApp.AppState>
+  ) {}
 
   signup(email: string, password: string): Observable<AuthResponse> {
     return this.http
@@ -78,7 +86,13 @@ export class AuthService {
     );
 
     if (user && user.token) {
-      this.userSubject.next(user);
+      const userdata: UserData = {
+        email: user.email,
+        userId: user.id,
+        token: user.token,
+        expirationDate: new Date(loadedUser.tokenExpiration)
+      };
+      this.store.dispatch(new Login(userdata));
       const timeLeft =
         new Date(loadedUser.tokenExpiration).getTime() - new Date().getTime();
       this.autoLogout(timeLeft);
@@ -88,7 +102,7 @@ export class AuthService {
   }
 
   logout(): void {
-    this.userSubject.next(null);
+    this.store.dispatch(new Logout());
     this.router.navigate(['/auth']);
     localStorage.removeItem('userData');
     if (this.tokenExpirationTimer) {
@@ -111,7 +125,13 @@ export class AuthService {
   ): void {
     const expirationDate = new Date(new Date().getTime() + expiresIn * 1000);
     const user = new User(email, id, token, expirationDate);
-    this.userSubject.next(user);
+    const userData: UserData = {
+      email: user.email,
+      expirationDate,
+      token: user.token,
+      userId: user.id
+    };
+    this.store.dispatch(new Login(userData));
     this.autoLogout(1000 * expiresIn);
     localStorage.setItem('userData', JSON.stringify(user));
   }
@@ -131,8 +151,6 @@ export class AuthService {
       case 'INVALID_EMAIL':
         errorMsg = 'This email is not registered!';
         break;
-      // case 'INVALID_PASSWORD':
-      //   break;
     }
     return throwError(errorMsg);
   }
