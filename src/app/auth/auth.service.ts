@@ -8,7 +8,7 @@ import { Store } from '@ngrx/store';
 import { signUpUrl, signInUrl } from './firebaseAuthConfig';
 import { User } from './user.model';
 import * as fromApp from '../store/app.reducer';
-import { Login, Logout } from './store/auth.actions';
+import { AuthenticateSuccess, Logout } from './store/auth.actions';
 import { UserData } from '../auth/store/auth.actions';
 
 export interface AuthResponse {
@@ -92,7 +92,7 @@ export class AuthService {
         token: user.token,
         expirationDate: new Date(loadedUser.tokenExpiration)
       };
-      this.store.dispatch(new Login(userdata));
+      this.store.dispatch(new AuthenticateSuccess(userdata));
       const timeLeft =
         new Date(loadedUser.tokenExpiration).getTime() - new Date().getTime();
       this.autoLogout(timeLeft);
@@ -131,7 +131,7 @@ export class AuthService {
       token: user.token,
       userId: user.id
     };
-    this.store.dispatch(new Login(userData));
+    this.store.dispatch(new AuthenticateSuccess(userData));
     this.autoLogout(1000 * expiresIn);
     localStorage.setItem('userData', JSON.stringify(user));
   }

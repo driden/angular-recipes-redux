@@ -2,6 +2,9 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
+
 import { AppRoutingModule } from './app-routing.module';
 
 // Booststrapped
@@ -13,9 +16,10 @@ import { CoreModule } from './core.module';
 
 // Components
 import { HeaderComponent } from './header/header.component';
-import { StoreModule } from '@ngrx/store';
+
 // App Store
 import * as fromApp from './store/app.reducer';
+import { AuthEffects } from './auth/store/auth.effects';
 
 @NgModule({
   imports: [
@@ -23,6 +27,7 @@ import * as fromApp from './store/app.reducer';
     HttpClientModule,
     AppRoutingModule,
     StoreModule.forRoot(fromApp.appReducers),
+    EffectsModule.forRoot([AuthEffects]),
     // RecipesModule, ShoppingListModule y AuthModule no los importo eagerly porque ya los importo de manera lazy
     SharedModule,
     CoreModule
