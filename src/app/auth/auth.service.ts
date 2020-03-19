@@ -10,6 +10,7 @@ import { User } from './user.model';
 import * as fromApp from '../store/app.reducer';
 import { AuthenticateSuccess, Logout } from './store/auth.actions';
 import { UserData } from '../auth/store/auth.actions';
+import * as AuthActions from '../auth/store/auth.actions';
 
 export interface AuthResponse {
   kind: string;
@@ -23,13 +24,27 @@ export interface AuthResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  // userSubject = new BehaviorSubject<User>(null);
   private tokenExpirationTimer: any;
   constructor(
     private http: HttpClient,
     private router: Router,
     private store: Store<fromApp.AppState>
   ) {}
+
+  setLogoutTimer(expirationDuration: number): void {
+    console.log('setLogoutTimer ' + expirationDuration);
+    this.tokenExpirationTimer = setTimeout(() => {
+      this.store.dispatch(new AuthActions.Logout());
+    }, expirationDuration);
+  }
+
+  clearLogoutTimer(): void {
+    console.log('clearLogoutTimer');
+    if (this.tokenExpirationTimer) {
+      clearTimeout(this.tokenExpirationTimer);
+    }
+    this.tokenExpirationTimer = null;
+  }
 
   signup(email: string, password: string): Observable<AuthResponse> {
     return this.http
@@ -105,10 +120,7 @@ export class AuthService {
     this.store.dispatch(new Logout());
     this.router.navigate(['/auth']);
     localStorage.removeItem('userData');
-    if (this.tokenExpirationTimer) {
-      clearTimeout(this.tokenExpirationTimer);
-    }
-    this.tokenExpirationTimer = null;
+    this.clearLogoutTimer();
   }
 
   autoLogout(expiresInMillis: number): void {
