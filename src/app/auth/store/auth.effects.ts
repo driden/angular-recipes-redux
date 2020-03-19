@@ -10,6 +10,7 @@ import { Actions, ofType, Effect } from '@ngrx/effects';
 import * as AuthActions from './auth.actions';
 import { signUpUrl, signInUrl } from '../firebaseAuthConfig';
 import { User } from '../user.model';
+import { AuthService } from '../auth.service';
 
 export interface AuthResponse {
   kind: string;
@@ -73,6 +74,9 @@ export class AuthEffects {
           returnSecureToken: true
         })
         .pipe(
+          tap(resData =>
+            this.authService.setLogoutTimer(+resData.expiresIn * 1000)
+          ),
           map(loginResponse =>
             handleAuthentication(
               +loginResponse.expiresIn,
@@ -97,6 +101,9 @@ export class AuthEffects {
           returnSecureToken: true
         })
         .pipe(
+          tap(resData =>
+            this.authService.setLogoutTimer(+resData.expiresIn * 1000)
+          ),
           map(loginResponse =>
             handleAuthentication(
               +loginResponse.expiresIn,
@@ -112,14 +119,18 @@ export class AuthEffects {
 
   @Effect({ dispatch: false })
   authSuccess = this.actions$.pipe(
-    ofType(AuthActions.AUTHENTICATE_SUCCESS, AuthActions.LOGOUT),
+    ofType(AuthActions.AUTHENTICATE_SUCCESS),
     tap(() => this.router.navigate(['/']))
   );
 
-  @Effect()
+  @Effect({ dispatch: false })
   authLogout = this.actions$.pipe(
     ofType(AuthActions.LOGOUT),
-    tap(() => localStorage.removeItem(USER_DATA))
+    tap(() => {
+      this.authService.clearLogoutTimer();
+      localStorage.removeItem(USER_DATA);
+      this.router.navigate(['/auth']);
+    })
   );
 
   @Effect()
@@ -133,6 +144,9 @@ export class AuthEffects {
       const { email, id, userToken, tokenExpiration } = JSON.parse(storedUser);
       const user = new User(email, id, userToken, new Date(tokenExpiration));
       if (user.token) {
+        const expirationDuration =
+          new Date(tokenExpiration).getTime() - new Date().getTime();
+        this.authService.setLogoutTimer(expirationDuration);
         const userdata = {
           email,
           userId: id,
@@ -148,6 +162,7 @@ export class AuthEffects {
   constructor(
     private actions$: Actions,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 }
