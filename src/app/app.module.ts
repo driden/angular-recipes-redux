@@ -23,6 +23,7 @@ import { HeaderComponent } from './header/header.component';
 import * as fromApp from './store/app.reducer';
 import { AuthEffects } from './auth/store/auth.effects';
 import { environment } from 'src/environments/environment';
+import { RecipeEffects } from './recipes/store/recipe.effects';
 
 @NgModule({
   imports: [
@@ -30,7 +31,7 @@ import { environment } from 'src/environments/environment';
     HttpClientModule,
     AppRoutingModule,
     StoreModule.forRoot(fromApp.appReducers),
-    EffectsModule.forRoot([AuthEffects]),
+    EffectsModule.forRoot([AuthEffects, RecipeEffects]),
     StoreDevtoolsModule.instrument({ logOnly: environment.production }),
     StoreRouterConnectingModule.forRoot(),
     // RecipesModule, ShoppingListModule y AuthModule no los importo eagerly porque ya los importo de manera lazy

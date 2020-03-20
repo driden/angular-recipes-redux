@@ -13,6 +13,7 @@ export interface UserData {
   userId: string;
   token: string;
   expirationDate: Date;
+  redirect: boolean;
 }
 
 export class AuthenticateSuccess implements Action {

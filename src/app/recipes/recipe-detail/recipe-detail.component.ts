@@ -1,12 +1,13 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { ActivatedRoute, Router, Params } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { map, switchMap } from 'rxjs/operators';
 
 import { Recipe } from '../Recipe';
-import { Store } from '@ngrx/store';
-
 import { Ingredient } from '../../shared/Ingredient';
 import { RecipesService } from '../recipes.service';
 import { AddIngredients } from 'src/app/shopping-list/store/shopping-list.actions';
+import * as fromApp from '../../store/app.reducer';
 
 @Component({
   selector: 'app-recipe-detail',
@@ -15,6 +16,7 @@ import { AddIngredients } from 'src/app/shopping-list/store/shopping-list.action
 })
 export class RecipeDetailComponent implements OnInit {
   recipe: Recipe;
+  id: number;
 
   @Output() onAddToShoppingList: EventEmitter<Ingredient[]> = new EventEmitter<
     Ingredient[]
@@ -24,14 +26,23 @@ export class RecipeDetailComponent implements OnInit {
     private recipeService: RecipesService,
     private route: ActivatedRoute,
     private router: Router,
-    private store: Store<{ shoppingList: { ingredients: Ingredient[] } }>
+    private store: Store<fromApp.AppState>
   ) {}
 
   ngOnInit() {
-    this.route.params.subscribe((recipeId: Params) => {
-      const id = +recipeId.id;
-      this.recipe = this.recipeService.get(id);
-    });
+    this.route.params
+      .pipe(
+        map((recipeId: Params) => +recipeId.id),
+        switchMap(id => {
+          this.id = id;
+          return this.store.select(_ => _.recipes);
+        }),
+        map(
+          recipeState =>
+            recipeState.recipes.filter(recipe => recipe.id === this.id)[0]
+        )
+      )
+      .subscribe(recipe => (this.recipe = recipe));
   }
 
   addIngredients(): void {
