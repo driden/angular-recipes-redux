@@ -1,7 +1,6 @@
 import { Subject } from 'rxjs';
 
 import { Recipe } from './Recipe';
-import { Ingredient } from '../shared/Ingredient';
 
 export class RecipesService {
   recipesChanged: Subject<Recipe[]>;
