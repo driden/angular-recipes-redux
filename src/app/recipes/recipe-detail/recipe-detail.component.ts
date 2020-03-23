@@ -8,6 +8,7 @@ import { Ingredient } from '../../shared/Ingredient';
 import { RecipesService } from '../recipes.service';
 import { AddIngredients } from 'src/app/shopping-list/store/shopping-list.actions';
 import * as fromApp from '../../store/app.reducer';
+import * as RecipeActions from '../store/recipe.actions';
 
 @Component({
   selector: 'app-recipe-detail',
@@ -23,7 +24,6 @@ export class RecipeDetailComponent implements OnInit {
   >();
 
   constructor(
-    private recipeService: RecipesService,
     private route: ActivatedRoute,
     private router: Router,
     private store: Store<fromApp.AppState>
@@ -54,7 +54,8 @@ export class RecipeDetailComponent implements OnInit {
   }
 
   onDeleteRecipe() {
-    this.recipeService.delete(this.recipe.id);
-    this.router.navigate(['/recipes']);
+    this.store.dispatch(new RecipeActions.DeleteRecipe(this.recipe.id));
+    // TODO: Esto deberia ser un effect
+    // this.router.navigate(['/recipes']);
   }
 }
