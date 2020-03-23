@@ -5,7 +5,6 @@ import { map, switchMap } from 'rxjs/operators';
 
 import { Recipe } from '../Recipe';
 import { Ingredient } from '../../shared/Ingredient';
-import { RecipesService } from '../recipes.service';
 import { AddIngredients } from 'src/app/shopping-list/store/shopping-list.actions';
 import * as fromApp from '../../store/app.reducer';
 import * as RecipeActions from '../store/recipe.actions';
@@ -55,7 +54,5 @@ export class RecipeDetailComponent implements OnInit {
 
   onDeleteRecipe() {
     this.store.dispatch(new RecipeActions.DeleteRecipe(this.recipe.id));
-    // TODO: Esto deberia ser un effect
-    // this.router.navigate(['/recipes']);
   }
 }

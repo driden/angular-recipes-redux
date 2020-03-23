@@ -2,7 +2,6 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { RecipesComponent } from './recipes.component';
 import { RecipeDetailComponent } from './recipe-detail/recipe-detail.component';
-import { RecipeDetailResolver } from './recipe-detail/recipe-detail-resolver.service';
 import { NoRecipeComponent } from './no-recipe/no-recipe.component';
 import { RecipeEditComponent } from './recipe-edit/recipe-edit.component';
 import { RecipesResolverService } from './recipe-list/recipes-resolver.service';
@@ -20,15 +19,12 @@ const routes: Routes = [
       {
         path: ':id/edit',
         component: RecipeEditComponent,
-        resolve: { foo: RecipesResolverService }
+        resolve: [RecipesResolverService]
       },
       {
         path: ':id',
         component: RecipeDetailComponent,
-        resolve: {
-          recipes: RecipesResolverService,
-          recipe: RecipeDetailResolver
-        }
+        resolve: [RecipesResolverService]
       }
     ]
   }
